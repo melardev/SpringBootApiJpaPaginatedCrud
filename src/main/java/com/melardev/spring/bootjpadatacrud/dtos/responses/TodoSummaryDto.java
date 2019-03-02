@@ -38,4 +38,8 @@ public class TodoSummaryDto {
     public static TodoSummaryDto build(Todo todo) {
         return new TodoSummaryDto(todo.getId(), todo.getTitle(), todo.isCompleted(), todo.getCreatedAt(), todo.getUpdatedAt());
     }
+
+    public Long getId() {
+        return id;
+    }
 }

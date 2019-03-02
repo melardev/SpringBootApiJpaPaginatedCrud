@@ -85,8 +85,11 @@ public class Todo {
 
     @PrePersist
     public void preSave() {
-        setCreatedAt(LocalDateTime.now());
-        setUpdatedAt(LocalDateTime.now());
+        if (this.createdAt == null) {
+            setCreatedAt(LocalDateTime.now());
+        }
+        if (this.updatedAt == null)
+            setUpdatedAt(LocalDateTime.now());
     }
 
     @PreUpdate

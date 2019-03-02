@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TodosRepository extends CrudRepository<Todo, Long> {
@@ -55,6 +55,9 @@ public interface TodosRepository extends CrudRepository<Todo, Long> {
     @Query("select t FROM Todo t WHERE title = ?0 and description  = ?1")
     List<Todo> findByTHqlTitleAndDescription(String title, String description);
 
+    List<Todo> findByCreatedAtAfter(LocalDateTime date);
+
+    List<Todo> findByCreatedAtBefore(LocalDateTime date);
 /*
     // for deferred execution
     Flux<Todo> findByDescription(Mono<String> description);

@@ -8,17 +8,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin
 @RestController
 @RequestMapping("/todos")
 public class TodosController {
@@ -38,6 +43,15 @@ public class TodosController {
         return new TodoListResponse(PageMeta.build(todos, request.getRequestURI()), todoDtos);
     }
 
+    @GetMapping("simple")
+    public List<Todo> indexSimple(@RequestParam(value = "page", defaultValue = "1") int page,
+                                  @RequestParam(value = "page_size", defaultValue = "10") int pageSize,
+                                  HttpServletRequest request) {
+
+        Pageable pageable = getPageable(page - 1, pageSize);
+        Page<Todo> todos = this.todosRepository.findAll(pageable);
+        return todos.getContent();
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<AppResponse> get(@PathVariable("id") Long id) {
@@ -56,7 +70,7 @@ public class TodosController {
                                             @RequestParam(value = "page_size", defaultValue = "10") int pageSize,
                                             HttpServletRequest request) {
 
-        Pageable pageable = getPageable(page, pageSize);
+        Pageable pageable = getPageable(page - 1, pageSize);
         Page<Todo> todos = this.todosRepository.findByCompletedFalse(pageable);
         return new TodoListResponse(PageMeta.build(todos, request.getRequestURI()), buildTodoDtos(todos));
     }
@@ -106,6 +120,22 @@ public class TodosController {
     public AppResponse deleteAll() {
         todosRepository.deleteAll();
         return new SuccessResponse("Deleted all todos successfully");
+    }
+
+    @GetMapping(value = "/after/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Todo> getByDateAfter(@PathVariable("date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date date) {
+        Iterable<Todo> articlesIterable = todosRepository.findByCreatedAtAfter(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        List<Todo> articleList = new ArrayList<>();
+        articlesIterable.forEach(articleList::add);
+        return articleList;
+    }
+
+    @GetMapping(value = "/before/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Todo> getByDateBefore(@PathVariable("date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date date) {
+        Iterable<Todo> articlesIterable = todosRepository.findByCreatedAtBefore(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        List<Todo> articleList = new ArrayList<>();
+        articlesIterable.forEach(articleList::add);
+        return articleList;
     }
 
     private Pageable getPageable(int page, int pageSize) {
