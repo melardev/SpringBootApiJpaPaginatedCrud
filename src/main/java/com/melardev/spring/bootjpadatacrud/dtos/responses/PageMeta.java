@@ -5,18 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public class PageMeta {
-    boolean hasNextPage;
-    boolean hasPrevPage;
+    private boolean hasNextPage;
+    private boolean hasPrevPage;
     public int currentPageNumber;
-    long totalItemsCount; // total cartItems in total
-    int pageSize; // max cartItems per page
-    int currentItemsCount; // cartItems in this page
-    int totalPageCount; // number of pages
-    long offset;
-    int nextPageNumber;
-    int prevPageNumber;
-    String nextPageUrl;
-    String prevPageUrl;
+    private long totalItemsCount; // total cartItems in total
+    private int requestedPageSize; // max cartItems per page
+    private int currentItemsCount; // cartItems in this page
+    private int numberOfPages; // number of pages
+    private long offset;
+    private int nextPageNumber;
+    private int prevPageNumber;
+    private String nextPageUrl;
+    private String prevPageUrl;
 
     public PageMeta() {
     }
@@ -28,9 +28,9 @@ public class PageMeta {
 
         pageMeta.setTotalItemsCount(resourcePage.getTotalElements());
         pageMeta.setOffset(pageable.getOffset());
-        pageMeta.setPageSize(pageable.getPageSize());
+        pageMeta.setRequestedPageSize(pageable.getPageSize());
         pageMeta.setCurrentItemsCount(resourcePage.getContent().size());
-        pageMeta.setTotalPageCount(resourcePage.getTotalPages());
+        pageMeta.setNumberOfPages(resourcePage.getTotalPages());
 
         pageMeta.setCurrentPageNumber(resourcePage.getNumber() + 1);
 
@@ -40,22 +40,22 @@ public class PageMeta {
         if (resourcePage.hasNext()) {
             pageMeta.setNextPageNumber(resourcePage.getPageable().next().getPageNumber() + 1);
             pageMeta.setNextPageUrl(String.format("%s?page_size=%d&page=%d",
-                    basePath, pageMeta.getPageSize(), pageMeta.getNextPageNumber()));
+                    basePath, pageMeta.getRequestedPageSize(), pageMeta.getNextPageNumber()));
         } else {
-            pageMeta.setNextPageNumber(pageMeta.getTotalPageCount());
+            pageMeta.setNextPageNumber(pageMeta.getNumberOfPages());
             pageMeta.setNextPageUrl(String.format("%s?page_size=%d&page=%d",
-                    basePath, pageMeta.getPageSize(), pageMeta.getNextPageNumber()));
+                    basePath, pageMeta.getRequestedPageSize(), pageMeta.getNextPageNumber()));
         }
         if (resourcePage.hasPrevious()) {
             pageMeta.setPrevPageNumber(resourcePage.getPageable().previousOrFirst().getPageNumber() + 1);
 
             pageMeta.setPrevPageUrl(String.format("%s?page_size=%d&page=%d",
-                    basePath, pageMeta.getPageSize(),
+                    basePath, pageMeta.getRequestedPageSize(),
                     pageMeta.getPrevPageNumber()));
         } else {
             pageMeta.setPrevPageNumber(1);
             pageMeta.setPrevPageUrl(String.format("%s?page_size=%d&page=%d",
-                    basePath, pageMeta.getPageSize(), pageMeta.getPrevPageNumber()));
+                    basePath, pageMeta.getRequestedPageSize(), pageMeta.getPrevPageNumber()));
         }
 
         return pageMeta;
@@ -85,12 +85,12 @@ public class PageMeta {
         return offset;
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+    public void setRequestedPageSize(int requestedPageSize) {
+        this.requestedPageSize = requestedPageSize;
     }
 
-    public int getPageSize() {
-        return pageSize;
+    public int getRequestedPageSize() {
+        return requestedPageSize;
     }
 
     public void setCurrentItemsCount(int currentItemsCount) {
@@ -101,12 +101,12 @@ public class PageMeta {
         return currentItemsCount;
     }
 
-    public void setTotalPageCount(int totalPageCount) {
-        this.totalPageCount = totalPageCount;
+    public void setNumberOfPages(int numberOfPages) {
+        this.numberOfPages = numberOfPages;
     }
 
-    public int getTotalPageCount() {
-        return totalPageCount;
+    public int getNumberOfPages() {
+        return numberOfPages;
     }
 
     public void setNextPageNumber(int nextPageNumber) {

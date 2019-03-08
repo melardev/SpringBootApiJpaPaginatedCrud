@@ -96,7 +96,11 @@ public class TodosController {
         if (optionalTodo.isPresent()) {
             Todo todo = optionalTodo.get();
             todo.setTitle(todoInput.getTitle());
-            todo.setDescription(todoInput.getDescription());
+
+            String description = todoInput.getDescription();
+            if (description != null)
+                todo.setDescription(description);
+
             todo.setCompleted(todoInput.isCompleted());
             return ResponseEntity.ok(new TodoDetailsResponse(todosRepository.save(optionalTodo.get()), "Todo updated successfully"));
         } else {
